@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coach d’anglais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F4;--surface:#FFFFFF;--ink:#14213D;--muted:#5B6782;--accent:#F2B705;--accent-ink:#14213D;
+  --teal:#1F7A74;--bad:#B3261E;--line:#D5DBE3;--me:#14213D;--me-ink:#FFFFFF;--good-bg:#E3F3F1;--bad-bg:#FBE9E7;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1726;--surface:#18233A;--ink:#E8EDF5;--muted:#9AA6BF;--accent:#F2B705;--accent-ink:#14213D;
+  --teal:#5CC2BA;--bad:#FF8A80;--line:#2A3752;--me:#F2B705;--me-ink:#14213D;--good-bg:#173B3A;--bad-bg:#3E2224;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1726;--surface:#18233A;--ink:#E8EDF5;--muted:#9AA6BF;--accent:#F2B705;--accent-ink:#14213D;
+  --teal:#5CC2BA;--bad:#FF8A80;--line:#2A3752;--me:#F2B705;--me-ink:#14213D;--good-bg:#173B3A;--bad-bg:#3E2224;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Sora,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding:18px 18px 140px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+header h1{font-size:1rem;font-weight:600;margin:0}
+.badge{font-weight:800;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:2px 12px;font-size:.9rem}
+.hidden{display:none!important}
+h2{font-size:1.9rem;line-height:1.15;font-weight:800;margin:8px 0 12px;letter-spacing:-.02em}
+p.lead{color:var(--muted);margin:0 0 22px}
+.topics{display:grid;gap:10px;margin-bottom:22px}
+.topic{text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:14px 16px;font:inherit;cursor:pointer}
+.topic small{display:block;color:var(--muted);font-size:.85rem}
+.topic[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 6px 0 0 var(--accent)}
+button{font:inherit}
+.btn{background:var(--ink);color:var(--bg);border:0;border-radius:12px;padding:14px 18px;font-weight:600;cursor:pointer;width:100%}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn:disabled{opacity:.5}
+.btn+.btn{margin-top:10px}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.history{margin-top:28px;font-size:.9rem;color:var(--muted)}
+.history li{margin:2px 0}
+.note{font-size:.85rem;color:var(--muted);background:var(--surface);border-left:4px solid var(--teal);padding:10px 12px;border-radius:8px;margin:14px 0}
+/* chat */
+.msgs{display:flex;flex-direction:column;gap:12px}
+.msg{max-width:88%;padding:10px 14px;border-radius:16px}
+.msg.ai{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.me{align-self:flex-end;background:var(--me);color:var(--me-ink);border-bottom-right-radius:4px}
+.msg .fr{color:var(--muted);font-size:.88rem;margin-top:6px;border-top:1px dashed var(--line);padding-top:6px}
+.tools{display:flex;gap:8px;margin-top:6px}
+.tools button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:2px 10px;font-size:.8rem;cursor:pointer}
+.thinking{color:var(--muted);font-style:italic}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px))}
+.bar-in{max-width:640px;margin:0 auto}
+.row{display:flex;gap:8px;align-items:center}
+.row textarea{flex:1;resize:none;border:2px solid var(--line);border-radius:12px;padding:10px;font:inherit;background:var(--surface);color:var(--ink);min-height:46px;max-height:120px}
+.mic{flex:none;width:58px;height:58px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);font-size:1.5rem;cursor:pointer;position:relative}
+.mic.on{animation:pulse 1.1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(242,183,5,.6)}100%{box-shadow:0 0 0 16px rgba(242,183,5,0)}}
+@media (prefers-reduced-motion:reduce){.mic.on{animation:none;outline:4px solid var(--teal)}}
+.send{flex:none;border:0;background:var(--ink);color:var(--bg);border-radius:12px;padding:0 14px;height:46px;font-weight:600;cursor:pointer}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--muted);margin-bottom:8px;gap:8px}
+.meta button{background:none;border:0;color:var(--teal);font-weight:600;padding:4px 0;cursor:pointer;font-size:.85rem}
+.live{font-size:.85rem;color:var(--teal);min-height:1.2em;margin-top:4px}
+/* report */
+.level{display:flex;align-items:flex-end;gap:16px;margin:4px 0 8px}
+.level .big{font-size:5.5rem;font-weight:800;line-height:.9;letter-spacing:-.04em;color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:12px;text-underline-offset:6px}
+.level .lbl{font-weight:600;padding-bottom:8px}
+.scores{margin:22px 0}
+.score{margin:10px 0}
+.score .t{display:flex;justify-content:space-between;font-size:.9rem}
+.track{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.fill{height:100%;background:var(--teal);border-radius:6px}
+h3{font-size:1.05rem;margin:24px 0 8px}
+ul.clean{padding-left:18px;margin:0}
+.mist{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0}
+.mist .s{text-decoration:line-through;color:var(--bad)}
+.mist .b{color:var(--teal);font-weight:600}
+.mist .w{font-size:.88rem;color:var(--muted)}
+/* exercises */
+.prog{height:6px;background:var(--line);border-radius:4px;margin-bottom:18px;overflow:hidden}
+.prog div{height:100%;background:var(--accent)}
+.kind{font-size:.85rem;color:var(--muted)}
+.q{font-size:1.25rem;font-weight:600;margin:8px 0 16px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.opt.ok{border-color:var(--teal);background:var(--good-bg)}
+.opt.ko{border-color:var(--bad);background:var(--bad-bg)}
+input.ans{width:100%;border:2px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:var(--surface);color:var(--ink)}
+.fb{border-radius:12px;padding:12px;margin:14px 0}
+.fb.ok{background:var(--good-bg)}
+.fb.ko{background:var(--bad-bg)}
+.err{color:var(--bad);font-size:.9rem;margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Coach d’anglais</h1>
+    <span id="badge" class="badge hidden"></span>
+  </header>
+
+  <!-- ACCUEIL -->
+  <section id="v-home">
+    <h2>Parle en anglais, je mesure ton niveau.</h2>
+    <p class="lead">Une courte conversation à l’oral (6 échanges), puis ton niveau (A1 à C2), tes erreurs, et des exercices faits pour toi.</p>
+    <div class="topics" id="topics"></div>
+    <button class="btn" id="start">Commencer la conversation</button>
+    <div class="note" id="micNote"></div>
+    <div class="history" id="history"></div>
+  </section>
+
+  <!-- CONVERSATION -->
+  <section id="v-chat" class="hidden">
+    <div class="msgs" id="msgs"></div>
+  </section>
+
+  <!-- RAPPORT -->
+  <section id="v-report" class="hidden"></section>
+
+  <!-- EXERCICES -->
+  <section id="v-ex" class="hidden"></section>
+</div>
+
+<div class="bar hidden" id="bar">
+  <div class="bar-in">
+    <div class="meta">
+      <span id="count">Échange 0/6</span>
+      <span><button id="autoTts" aria-pressed="true">🔊 Lecture auto : oui</button></span>
+      <button id="finish" class="hidden">Voir mon niveau</button>
+    </div>
+    <div class="row">
+      <button class="mic" id="mic" aria-label="Parler">🎤</button>
+      <textarea id="txt" rows="1" placeholder="Parle ou écris en anglais…"></textarea>
+      <button class="send" id="send">Envoyer</button>
+    </div>
+    <div class="live" id="live"></div>
+  </div>
+</div>
+
+<script>
+const TOPICS = [
+  {id:"intro", t:"Se présenter", d:"Qui tu es, ta famille, ta vie", p:"a friendly new acquaintance getting to know the learner (family, job, hobbies, daily life)"},
+  {id:"taxi", t:"Un client touriste dans le taxi", d:"Tu conduis, je suis le passager", p:"an English-speaking tourist who just got into the learner’s taxi in Paris. The learner is the driver. Talk about the destination, the route, traffic, recommendations in Paris, payment"},
+  {id:"travel", t:"Voyages et vacances", d:"Pays, souvenirs, projets", p:"a friend chatting about travel, holidays and places the learner has visited or wants to visit"},
+  {id:"free", t:"Sujet libre", d:"On parle de ce que tu veux", p:"a friendly conversation partner; let the learner choose the subject"}
+];
+const MAX_TURNS = 6;
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+let topic = TOPICS[0];
+let convo = [];        // {role:"ai"|"me", en, fr}
+let report = null;
+let exercises = [], exIdx = 0, exScore = 0;
+let autoTts = store.get("ec.autoTts", true);
+
+/* ---------- Claude (via /api/claude sur Vercel) ---------- */
+function errText(e){
+  const c = e && e.code;
+  if (c === "no_key") return "La clé API n’est pas configurée sur Vercel (variable ANTHROPIC_API_KEY).";
+  if (c === "rate_limited") return "Trop de demandes d’un coup. Attends une minute puis réessaie.";
+  if (c === "network") return "Pas de connexion internet. Vérifie ton réseau et réessaie.";
+  return "Le coach n’a pas pu répondre" + (e && e.message ? " (" + e.message + ")" : "") + ". Réessaie.";
+}
+async function ask(prompt, tier){
+  let r;
+  try{
+    r = await fetch("/api/claude", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({prompt, tier: tier || "quick"})});
+  }catch(e){ throw {code:"network"}; }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw {code: data.code || "server", message: data.error};
+  return data.result;
+}
+
+/* ---------- Voix ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false;
+function speak(text){
+  if (!("speechSynthesis" in window) || !text) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const vs = speechSynthesis.getVoices();
+  const v = vs.find(v => /en[-_]GB/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang));
+  if (v) u.voice = v;
+  u.lang = v ? v.lang : "en-GB";
+  u.rate = report && /^(A1|A2)$/.test(report.level) ? 0.85 : 0.95;
+  speechSynthesis.speak(u);
+}
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
+
+function listen(onFinal, liveEl, btn){
+  if (!SR){ liveEl.textContent = "Micro direct indisponible ici : touche le micro de ton clavier pour dicter."; return; }
+  if (listening && rec){ rec.stop(); return; }
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  rec = new SR();
+  rec.lang = "en-US"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  let finalText = "";
+  rec.onstart = () => { listening = true; btn.classList.add("on"); liveEl.textContent = "Je t’écoute… parle en anglais."; };
+  rec.onresult = ev => {
+    let interim = "";
+    for (let i = ev.resultIndex; i < ev.results.length; i++){
+      const r = ev.results[i];
+      if (r.isFinal) finalText += r[0].transcript; else interim += r[0].transcript;
+    }
+    liveEl.textContent = (finalText + " " + interim).trim();
+  };
+  rec.onerror = ev => {
+    if (ev.error === "not-allowed" || ev.error === "service-not-allowed")
+      liveEl.textContent = "Micro bloqué ici : touche le micro de ton clavier pour dicter, ou ouvre le lien dans Chrome.";
+    else if (ev.error === "no-speech") liveEl.textContent = "Je n’ai rien entendu. Réessaie.";
+    else liveEl.textContent = "Problème de micro (" + ev.error + "). Tu peux aussi écrire.";
+  };
+  rec.onend = () => {
+    listening = false; btn.classList.remove("on");
+    if (finalText.trim()){ liveEl.textContent = ""; onFinal(finalText.trim()); }
+  };
+  try{ rec.start(); }catch(e){ liveEl.textContent = "Le micro n’a pas pu démarrer. Tu peux écrire à la place."; }
+}
+
+/* ---------- Accueil ---------- */
+function show(v){
+  ["home","chat","report","ex"].forEach(n => $("v-"+n).classList.toggle("hidden", n !== v));
+  $("bar").classList.toggle("hidden", v !== "chat");
+  window.scrollTo(0,0);
+}
+function renderHome(){
+  const box = $("topics"); box.innerHTML = "";
+  TOPICS.forEach(t => {
+    const b = document.createElement("button");
+    b.className = "topic"; b.setAttribute("aria-pressed", t.id === topic.id);
+    b.innerHTML = `<strong></strong><small></small>`;
+    b.querySelector("strong").textContent = t.t; b.querySelector("small").textContent = t.d;
+    b.onclick = () => { topic = t; renderHome(); };
+    box.appendChild(b);
+  });
+  $("micNote").textContent = SR
+    ? "Appuie sur 🎤 pour parler. Si le micro est bloqué, utilise le micro de ton clavier : ça marche aussi."
+    : "Ce navigateur ne permet pas le micro direct. Utilise le micro de ton clavier pour dicter tes réponses.";
+  const h = store.get("ec.history", []);
+  const last = h[h.length-1];
+  if (last){ $("badge").textContent = last.level; $("badge").classList.remove("hidden"); }
+  const hist = $("history"); hist.innerHTML = "";
+  if (h.length){
+    const t = document.createElement("div"); t.textContent = "Tes derniers niveaux :"; hist.appendChild(t);
+    const ul = document.createElement("ul"); ul.className = "clean";
+    h.slice(-5).reverse().forEach(x => { const li = document.createElement("li"); li.textContent = `${x.date} : ${x.level} (${x.topic})`; ul.appendChild(li); });
+    hist.appendChild(ul);
+    if (store.get("ec.lastReport", null)){
+      const b = document.createElement("button"); b.className = "btn alt"; b.style.marginTop = "12px";
+      b.textContent = "Refaire des exercices sur mon dernier bilan";
+      b.onclick = () => { report = store.get("ec.lastReport", null); startExercises(); };
+      hist.appendChild(b);
+    }
+  }
+}
+
+/* ---------- Conversation ---------- */
+function addMsg(m){
+  const d = document.createElement("div");
+  d.className = "msg " + m.role;
+  const en = document.createElement("div"); en.textContent = m.en; d.appendChild(en);
+  if (m.role === "ai"){
+    const fr = document.createElement("div"); fr.className = "fr hidden"; fr.textContent = m.fr || ""; d.appendChild(fr);
+    const tools = document.createElement("div"); tools.className = "tools";
+    const b1 = document.createElement("button"); b1.textContent = "🔊 Réécouter"; b1.onclick = () => speak(m.en);
+    const b2 = document.createElement("button"); b2.textContent = "Traduction"; b2.onclick = () => fr.classList.toggle("hidden");
+    tools.append(b1, b2); d.appendChild(tools);
+  }
+  $("msgs").appendChild(d);
+  d.scrollIntoView({behavior:"smooth", block:"end"});
+  return d;
+}
+function myTurns(){ return convo.filter(m => m.role === "me").length; }
+function updateMeta(){
+  const n = myTurns();
+  $("count").textContent = `Échange ${Math.min(n, MAX_TURNS)}/${MAX_TURNS}`;
+  $("finish").classList.toggle("hidden", n < 3);
+  $("autoTts").textContent = "🔊 Lecture auto : " + (autoTts ? "oui" : "non");
+  $("autoTts").setAttribute("aria-pressed", autoTts);
+}
+function transcript(){
+  return convo.map(m => (m.role === "ai" ? "Partner: " : "Learner: ") + m.en).join("\n");
+}
+async function aiTurn(){
+  const th = document.createElement("div"); th.className = "msg ai thinking"; th.textContent = "…";
+  $("msgs").appendChild(th); th.scrollIntoView({block:"end"});
+  setBusy(true);
+  const last = myTurns() >= MAX_TURNS;
+  const prompt = `You are having a spoken English conversation with a French-speaking adult learner, to discover their English level.
+Your role: ${topic.p}.
+Rules:
+- Reply in natural spoken English, 1 to 3 short sentences, then ask ONE open question (unless told to close).
+- Adapt to the learner: if their English is very basic, use very simple words and short sentences; if it is good, speak naturally.
+- If the learner writes in French or says they don't know how to say something, give them the English phrase kindly and continue.
+- Do not correct mistakes during the conversation (corrections come later). You may naturally reuse a correct version of what they said.
+- The learner's text comes from speech recognition: ignore missing punctuation and obvious recognition slips.
+${last ? "- This is the LAST turn: react to what they said and close the conversation warmly in 1-2 sentences, no question." : ""}
+${convo.length ? "Conversation so far:\n" + transcript() : "Start the conversation now with a short greeting and a first easy question."}
+
+Answer ONLY with JSON: {"en": "your reply in English", "fr": "the same reply translated into French"}`;
+  try{
+    const r = await ask(prompt, "quick");
+    th.remove();
+    const m = {role:"ai", en: String(r.en || "").trim(), fr: String(r.fr || "").trim()};
+    convo.push(m); addMsg(m);
+    if (autoTts) speak(m.en);
+    if (last) { $("finish").classList.remove("hidden"); $("finish").textContent = "Voir mon niveau maintenant"; }
+  }catch(e){
+    th.classList.remove("thinking"); th.classList.add("err");
+    th.textContent = errText(e);
+  }
+  setBusy(false); updateMeta();
+}
+function setBusy(b){ $("send").disabled = b; $("mic").disabled = b; }
+async function sendMine(text){
+  text = (text || "").trim();
+  if (!text || $("send").disabled) return;
+  if (myTurns() >= MAX_TURNS) return;
+  $("txt").value = "";
+  const m = {role:"me", en:text}; convo.push(m); addMsg(m); updateMeta();
+  await aiTurn();
+}
+$("send").onclick = () => sendMine($("txt").value);
+$("txt").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendMine($("txt").value); }});
+$("mic").onclick = () => listen(t => sendMine(t), $("live"), $("mic"));
+$("autoTts").onclick = () => { autoTts = !autoTts; store.set("ec.autoTts", autoTts); updateMeta(); };
+$("finish").onclick = () => evaluate();
+$("start").onclick = () => {
+  convo = []; $("msgs").innerHTML = ""; $("live").textContent = "";
+  $("finish").textContent = "Voir mon niveau";
+  show("chat"); updateMeta(); aiTurn();
+};
+
+/* ---------- Évaluation ---------- */
+async function evaluate(){
+  if (rec && listening) rec.stop();
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  show("report");
+  const v = $("v-report");
+  v.innerHTML = `<h2>Analyse de ta conversation…</h2><p class="lead">Ça prend en général 20 à 40 secondes.</p>`;
+  const prompt = `You are an expert English teacher (CEFR examiner). Assess the English level of a French-speaking adult learner from this conversation.
+The learner's lines come from speech recognition (or typing): ignore punctuation, capital letters and obvious recognition slips. You cannot hear the accent, so do not judge pronunciation.
+Judge only the "Learner" lines, taking into account how well they understood and answered the partner.
+
+Conversation:
+${transcript()}
+
+Answer ONLY with JSON, all explanations in simple French (tutoie le learner):
+{
+ "level": "A1|A2|B1|B2|C1|C2",
+ "level_fr": "short French label, e.g. Intermédiaire",
+ "summary_fr": "2-3 sentences: what the learner can already do and what blocks them",
+ "scores": {"grammaire": 0-100, "vocabulaire": 0-100, "aisance": 0-100, "comprehension": 0-100},
+ "strengths_fr": ["2-3 short points"],
+ "mistakes": [{"said": "exact learner phrase with the error", "better": "correct natural English", "why_fr": "short explanation"}],
+ "focus_fr": ["the 3 priorities to work on"],
+ "focus_en": "short English description of grammar/vocab points to drill, for an exercise generator"
+}
+List up to 6 of the most useful mistakes. If the learner made almost none, give advanced improvements instead.`;
+  try{
+    report = await ask(prompt, "default");
+    report.topic = topic.t;
+    store.set("ec.lastReport", report);
+    const h = store.get("ec.history", []);
+    h.push({date: new Date().toLocaleDateString("fr-FR"), level: report.level, topic: topic.t});
+    store.set("ec.history", h.slice(-30));
+    $("badge").textContent = report.level; $("badge").classList.remove("hidden");
+    renderReport();
+  }catch(e){
+    v.innerHTML = "";
+    const p = document.createElement("p"); p.className = "err"; p.textContent = errText(e); v.appendChild(p);
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = "Réessayer l’analyse"; b.onclick = evaluate; v.appendChild(b);
+  }
+}
+function renderReport(){
+  const r = report, v = $("v-report");
+  v.innerHTML = `
+    <div class="level"><span class="big"></span><span class="lbl"></span></div>
+    <p class="lead" id="rSum"></p>
+    <div class="scores" id="rScores"></div>
+    <h3>Ce que tu fais bien</h3><ul class="clean" id="rStr"></ul>
+    <h3>Tes erreurs, corrigées</h3><div id="rMist"></div>
+    <h3>Tes 3 priorités</h3><ul class="clean" id="rFocus"></ul>
+    <div class="note">Le niveau est estimé sur ta grammaire, ton vocabulaire et ta compréhension. L’accent n’est pas noté, car l’appli lit le texte reconnu, pas le son.</div>
+    <button class="btn" id="goEx">Commencer les exercices</button>
+    <button class="btn alt" id="again">Nouvelle conversation</button>`;
+  v.querySelector(".big").textContent = r.level || "?";
+  v.querySelector(".lbl").textContent = r.level_fr || "";
+  $("rSum").textContent = r.summary_fr || "";
+  const labels = {grammaire:"Grammaire", vocabulaire:"Vocabulaire", aisance:"Aisance", comprehension:"Compréhension"};
+  Object.keys(labels).forEach(k => {
+    const val = Math.max(0, Math.min(100, Number((r.scores||{})[k]) || 0));
+    const d = document.createElement("div"); d.className = "score";
+    d.innerHTML = `<div class="t"><span></span><span>${val}/100</span></div><div class="track"><div class="fill" style="width:${val}%"></div></div>`;
+    d.querySelector("span").textContent = labels[k];
+    $("rScores").appendChild(d);
+  });
+  (r.strengths_fr||[]).forEach(s => { const li = document.createElement("li"); li.textContent = s; $("rStr").appendChild(li); });
+  (r.mistakes||[]).forEach(m => {
+    const d = document.createElement("div"); d.className = "mist";
+    d.innerHTML = `<div class="s"></div><div class="b"></div><div class="w"></div><div class="tools"><button>🔊 Écouter la bonne phrase</button></div>`;
+    d.querySelector(".s").textContent = m.said; d.querySelector(".b").textContent = m.better; d.querySelector(".w").textContent = m.why_fr;
+    d.querySelector("button").onclick = () => speak(m.better);
+    $("rMist").appendChild(d);
+  });
+  if (!(r.mistakes||[]).length) $("rMist").textContent = "Aucune erreur notable. Bravo !";
+  (r.focus_fr||[]).forEach(s => { const li = document.createElement("li"); li.textContent = s; $("rFocus").appendChild(li); });
+  $("goEx").onclick = startExercises;
+  $("again").onclick = () => { show("home"); renderHome(); };
+}
+
+/* ---------- Exercices ---------- */
+async function startExercises(){
+  show("ex");
+  const v = $("v-ex");
+  v.innerHTML = `<h2>Je prépare tes exercices…</h2><p class="lead">Ils sont faits à partir de tes erreurs et de ton niveau.</p>`;
+  const r = report;
+  const prompt = `Create 8 short English exercises for a French-speaking adult learner, CEFR level ${r.level}.
+Target these weaknesses: ${r.focus_en || ""}
+Their real mistakes: ${JSON.stringify((r.mistakes||[]).map(m => ({said:m.said, better:m.better})))}
+Theme of vocabulary: ${r.topic || "everyday life"}.
+Difficulty: exactly at level ${r.level}, slightly challenging. Instructions and explanations in simple French (tutoiement).
+
+Use this exact mix and order: choice, fill, speak, translate, choice, fill, translate, speak.
+Formats:
+- {"type":"choice","question_fr":"consigne","sentence":"English sentence with ___","options":["a","b","c"],"answer":0,"explain_fr":"..."}
+- {"type":"fill","question_fr":"consigne","sentence":"English sentence with one ___","answer":"missing word(s)","alt":["other accepted answers"],"hint_fr":"indice","explain_fr":"..."}
+- {"type":"translate","fr":"French sentence to translate","answer":"natural English translation","explain_fr":"..."}
+- {"type":"speak","target":"English sentence to say aloud","fr":"its French meaning","explain_fr":"what it trains"}
+
+Answer ONLY with JSON: {"exercises":[...]}`;
+  try{
+    const res = await ask(prompt, "default");
+    exercises = (res.exercises || []).filter(x => x && x.type);
+    if (!exercises.length) throw {code:"empty"};
+    exIdx = 0; exScore = 0; renderEx();
+  }catch(e){
+    v.innerHTML = "";
+    const p = document.createElement("p"); p.className = "err"; p.textContent = errText(e); v.appendChild(p);
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = "Réessayer"; b.onclick = startExercises; v.appendChild(b);
+  }
+}
+const norm = s => String(s||"").toLowerCase().replace(/[’']/g,"'").replace(/[^a-z0-9' ]+/g," ").replace(/\s+/g," ").trim();
+function overlap(said, target){
+  const s = norm(said).split(" "), t = norm(target).split(" ").filter(Boolean);
+  if (!t.length) return 0;
+  const pool = [...s]; let hit = 0;
+  t.forEach(w => { const i = pool.indexOf(w); if (i >= 0){ hit++; pool.splice(i,1); } });
+  return hit / t.length;
+}
+function renderEx(){
+  const v = $("v-ex"), x = exercises[exIdx];
+  if (!x) return renderExEnd();
+  const names = {choice:"Choisis la bonne réponse", fill:"Complète la phrase", translate:"Traduis en anglais", speak:"Dis la phrase à voix haute"};
+  v.innerHTML = `<div class="prog"><div style="width:${exIdx/exercises.length*100}%"></div></div>
+    <div class="kind">Exercice ${exIdx+1}/${exercises.length} : ${names[x.type]||""}</div>
+    <div class="q" id="q"></div><div id="zone"></div><div id="fb"></div><div id="next"></div>`;
+  const zone = $("zone");
+  let answered = false;
+  const done = (ok, html) => {
+    if (answered) return; answered = true;
+    if (ok) exScore++;
+    const fb = document.createElement("div"); fb.className = "fb " + (ok ? "ok" : "ko");
+    fb.append(...html); $("fb").appendChild(fb);
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = exIdx+1 < exercises.length ? "Exercice suivant" : "Voir mon résultat";
+    b.onclick = () => { exIdx++; renderEx(); }; $("next").appendChild(b);
+    b.scrollIntoView({behavior:"smooth", block:"end"});
+  };
+  const line = (txt, strong) => { const d = document.createElement("div"); d.textContent = txt; if (strong) d.style.fontWeight = "600"; return d; };
+
+  if (x.type === "choice"){
+    $("q").textContent = x.sentence;
+    zone.prepend(line(x.question_fr));
+    const o = document.createElement("div"); o.className = "opts"; o.style.marginTop = "12px";
+    (x.options||[]).forEach((op,i) => {
+      const b = document.createElement("button"); b.className = "opt"; b.textContent = op;
+      b.onclick = () => {
+        if (answered) return;
+        const ok = i === Number(x.answer);
+        b.classList.add(ok ? "ok" : "ko");
+        o.children[Number(x.answer)] && o.children[Number(x.answer)].classList.add("ok");
+        done(ok, [line(ok ? "Bonne réponse !" : "Pas tout à fait.", true), line(x.explain_fr)]);
+      };
+      o.appendChild(b);
+    });
+    zone.appendChild(o);
+  }
+  else if (x.type === "fill"){
+    $("q").textContent = x.sentence;
+    zone.append(line(x.question_fr));
+    const inp = document.createElement("input"); inp.className = "ans"; inp.placeholder = "Ta réponse"; inp.style.marginTop = "12px";
+    inp.autocapitalize = "off"; inp.autocomplete = "off";
+    const hint = document.createElement("div"); hint.className = "kind"; hint.style.margin = "8px 0"; hint.textContent = x.hint_fr ? "Indice : " + x.hint_fr : "";
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = "Vérifier";
+    b.onclick = () => {
+      const accepted = [x.answer, ...(x.alt||[])].map(norm);
+      const ok = accepted.includes(norm(inp.value));
+      done(ok, [line(ok ? "Bonne réponse !" : "Réponse attendue : " + x.answer, true), line(x.explain_fr)]);
+      b.disabled = true;
+    };
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") b.click(); });
+    zone.append(inp, hint, b);
+  }
+  else if (x.type === "translate"){
+    $("q").textContent = x.fr;
+    const ta = document.createElement("textarea"); ta.className = "ans"; ta.rows = 2; ta.placeholder = "Écris ou dicte ta traduction en anglais";
+    ta.style.cssText = "width:100%;border:2px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:var(--surface);color:var(--ink)";
+    const row = document.createElement("div"); row.className = "row"; row.style.marginTop = "10px";
+    const mic = document.createElement("button"); mic.className = "mic"; mic.textContent = "🎤"; mic.setAttribute("aria-label","Dicter");
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = "Vérifier";
+    const live = document.createElement("div"); live.className = "live";
+    mic.onclick = () => listen(t => { ta.value = t; }, live, mic);
+    b.onclick = async () => {
+      if (!ta.value.trim()) return;
+      b.disabled = true; b.textContent = "Correction…";
+      try{
+        const r = await ask(`A French-speaking learner (CEFR ${report.level}) translated this French sentence into English.
+French: "${x.fr}"
+Reference translation: "${x.answer}"
+Learner's answer: "${ta.value.trim()}"
+The answer may come from speech recognition: ignore punctuation and capitals. Accept any correct, natural translation, even if different from the reference.
+Answer ONLY with JSON: {"ok": true or false, "better": "the best correct version close to the learner's wording", "comment_fr": "1-2 short sentences in French (tutoiement) explaining the error, or praising"}`, "quick");
+        done(!!r.ok, [line(r.ok ? "Correct !" : "Presque.", true), line("Version correcte : " + (r.better || x.answer)), line(r.comment_fr || x.explain_fr)]);
+      }catch(e){
+        const ok = overlap(ta.value, x.answer) >= .85;
+        done(ok, [line("Réponse modèle : " + x.answer, true), line(x.explain_fr)]);
+      }
+      b.textContent = "Vérifié";
+    };
+    row.append(mic, b); b.style.width = "auto"; b.style.flex = "1";
+    zone.append(ta, row, live);
+  }
+  else if (x.type === "speak"){
+    $("q").textContent = x.target;
+    zone.append(line(x.fr));
+    const row = document.createElement("div"); row.className = "row"; row.style.marginTop = "14px";
+    const lis = document.createElement("button"); lis.className = "btn alt"; lis.textContent = "🔊 Écouter"; lis.style.flex = "1";
+    lis.onclick = () => speak(x.target);
+    const mic = document.createElement("button"); mic.className = "mic"; mic.textContent = "🎤"; mic.setAttribute("aria-label","Dire la phrase");
+    row.append(lis, mic);
+    const live = document.createElement("div"); live.className = "live";
+    const alt = document.createElement("input"); alt.className = "ans"; alt.placeholder = "Ou dicte avec le micro du clavier ici"; alt.style.marginTop = "10px";
+    const chk = document.createElement("button"); chk.className = "btn alt"; chk.textContent = "Vérifier ce que j’ai dicté"; chk.style.marginTop = "8px";
+    let tries = 0;
+    const judge = said => {
+      tries++;
+      const sc = overlap(said, x.target);
+      if (sc >= .8 || tries >= 3){
+        done(sc >= .8, [line(sc >= .8 ? `Bien dit ! (${Math.round(sc*100)} % des mots reconnus)` : `J’ai compris : « ${said} »`, true), line(x.explain_fr)]);
+      } else {
+        live.textContent = `J’ai compris : « ${said} » (${Math.round(sc*100)} %). Réessaie, essai ${tries}/3.`;
+      }
+    };
+    mic.onclick = () => listen(judge, live, mic);
+    chk.onclick = () => { if (alt.value.trim()) judge(alt.value); };
+    zone.append(row, live, alt, chk);
+    speak(x.target);
+  }
+  else { exIdx++; renderEx(); }
+}
+function renderExEnd(){
+  const v = $("v-ex"), n = exercises.length;
+  const done = store.get("ec.exDone", 0) + n; store.set("ec.exDone", done);
+  v.innerHTML = `<div class="level"><span class="big">${exScore}/${n}</span></div>
+    <p class="lead" id="endMsg"></p>
+    <button class="btn" id="more">Nouvelle série d’exercices</button>
+    <button class="btn alt" id="conv">Nouvelle conversation pour remesurer mon niveau</button>`;
+  $("endMsg").textContent = (exScore/n >= .75 ? "Très bien, tu progresses." : exScore/n >= .5 ? "C’est un bon début, continue." : "Ces points sont encore difficiles : refais une série, ça va rentrer.")
+    + ` Tu as fait ${done} exercices au total.`;
+  $("more").onclick = startExercises;
+  $("conv").onclick = () => { show("home"); renderHome(); };
+}
+
+renderHome();
+</script>
+</body>
+</html>
